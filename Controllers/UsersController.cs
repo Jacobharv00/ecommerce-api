@@ -1,5 +1,7 @@
 using EcommerceAPI.Models;
+using EcommerceAPI.Services;
 using Microsoft.AspNetCore.Mvc;
+
 
 
 namespace EcommerceAPI.Controllers
@@ -27,6 +29,37 @@ namespace EcommerceAPI.Controllers
             }
         };
 
+        [HttpGet("Info")]
+        public IActionResult GetInfo(int? id, string? name, int? page,
+            [FromServices]IConfiguration config,
+            [FromServices]TimeService timeService
+        )
+        {
+            if(id != null || name != null || page != null)
+            {
+                var response = new
+                {
+                    Id = id,
+                    Name = name,
+                    Page = page,
+                    ErrorMesage = "The search functionality is not supported yet"
+                };
+                return Ok(response);
+            }
+
+            List<string> listInfo = new List<string>
+            {
+                "AppName=" + config["AppName"],
+                "Language=" + config["Language"],
+                "Country=" + config["Country"],
+                "Log=" + config["Logging:LogLevel:Default"],
+                "Date=" + timeService.GetDate(),
+                "Time=" + timeService.GetTime()
+            };
+
+            return Ok(listInfo);
+        }
+
         [HttpGet]
         public IActionResult GetUsers()
         {
@@ -38,7 +71,7 @@ namespace EcommerceAPI.Controllers
             return NoContent();
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public IActionResult GetUser(int id)
         {
             if(id >= 0 && id < listUsers.Count)
@@ -48,6 +81,21 @@ namespace EcommerceAPI.Controllers
             }
 
             return NotFound();
+        }
+
+        [HttpGet("{name}")]
+        public IActionResult GetUser(string name)
+        {
+            var user = listUsers.FirstOrDefault(
+                u => u.FirstName.Contains(name) || u.LastName.Contains(name)
+            );
+
+            if(user  == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
         }
 
         [HttpPost]
