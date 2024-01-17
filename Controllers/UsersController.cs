@@ -1,3 +1,4 @@
+using EcommerceAPI.Filters;
 using EcommerceAPI.Models;
 using EcommerceAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,7 @@ namespace EcommerceAPI.Controllers
         };
 
         [HttpGet("Info")]
+        [DebugFilter]
         public IActionResult GetInfo(int? id, string? name, int? page,
             [FromServices]IConfiguration config,
             [FromServices]TimeService timeService
